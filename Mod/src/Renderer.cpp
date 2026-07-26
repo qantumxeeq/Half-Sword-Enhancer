@@ -445,6 +445,16 @@ void Renderer::RenderFrameD3D12() noexcept {
 }
 
 bool Renderer::InitOrReinitImGui() noexcept {
+    if (state.imguiContextReady && imguiWindowHandle != windowHandle) {
+        logger.Log("Game window changed, rebinding ImGui input from %p to %p", imguiWindowHandle, windowHandle);
+        Gui::Get().Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui_ImplWin32_Init(windowHandle);
+        Gui::Get().Init(windowHandle);
+        Gui::Get().Setup();
+        imguiWindowHandle = windowHandle;
+    }
+
     if (!state.imguiContextReady) {
         ImGui::CreateContext();
         ImGui_ImplWin32_Init(windowHandle);
@@ -452,6 +462,7 @@ bool Renderer::InitOrReinitImGui() noexcept {
         Gui::Get().Setup();
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
         state.imguiContextReady = true;
+        imguiWindowHandle = windowHandle;
     }
 
     if (!state.imguiRendererReady) {
@@ -821,6 +832,7 @@ void Renderer::Cleanup() noexcept {
         ImGui::DestroyContext();
         state.imguiContextReady = false;
         windowHandle = nullptr;
+        imguiWindowHandle = nullptr;
     }
 
     state = {};
