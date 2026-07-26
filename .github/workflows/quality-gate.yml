@@ -55,6 +55,17 @@ jobs:
           msbuild "Half Sword Enhancer.sln" /t:Rebuild /m
           "/p:Configuration=${{ matrix.configuration }}" /p:Platform=x64 /p:SkipGameInstall=true
 
+      - name: Upload experimental build
+        if: matrix.configuration == 'Release Experimental'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Half-Sword-Enhancer-Experimental-window-input-fix
+          path: |
+            bin/*.dll
+            bin/*.exe
+            bin/*.pdb
+          if-no-files-found: error
+
       - name: Run clang-tidy
         shell: pwsh
         run: '& ".\scripts\check-tidy.ps1" -Project All -Configuration "${{ matrix.configuration }}"'
